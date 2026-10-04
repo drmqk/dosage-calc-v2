@@ -1,0 +1,6 @@
+{
+  "name": "RadContrast - CT & MRI Contrast Media Dose & Protocol Calculator",
+  "description": "Clinical contrast media dosing, injection flow rate, scan delay timing, and renal safety protocol calculator for radiologic technologists and radiologists.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

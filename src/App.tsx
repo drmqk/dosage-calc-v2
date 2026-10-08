@@ -19,12 +19,16 @@ import { RenalGuidelineView } from './components/RenalGuidelineView';
 import { PremedicationGuideView } from './components/PremedicationGuideView';
 import { AgentCatalogView } from './components/AgentCatalogView';
 import { PresetModal } from './components/PresetModal';
+import { InstallModal } from './components/InstallModal';
+import { OfflineIndicator } from './components/OfflineIndicator';
 import { ClinicalPreset } from './data/presets';
-import { Sparkles, FileSpreadsheet, ShieldAlert, BookOpen } from 'lucide-react';
+import { Sparkles, FileSpreadsheet, Smartphone, Download } from 'lucide-react';
+import { AppIcon } from './components/AppIcon';
 
 export default function App() {
   const [activeTab, setActiveTab] = useState<'calculator' | 'worksheet' | 'renal' | 'premed' | 'catalog'>('calculator');
   const [isPresetModalOpen, setIsPresetModalOpen] = useState(false);
+  const [isInstallModalOpen, setIsInstallModalOpen] = useState(false);
 
   // Initial Clinical Patient Profile
   const [profile, setProfile] = useState<PatientProfile>({
@@ -102,12 +106,13 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-100 flex flex-col font-sans text-slate-900">
+    <div className="min-h-screen bg-[#090d16] flex flex-col font-sans text-slate-100 antialiased selection:bg-teal-500 selection:text-slate-950">
       {/* Top Bar adhering to 3-zone contract */}
       <Header
         activeTab={activeTab}
         setActiveTab={setActiveTab}
         onOpenPresets={() => setIsPresetModalOpen(true)}
+        onOpenInstall={() => setIsInstallModalOpen(true)}
         onPrint={handlePrint}
         modality={currentProtocol.modality}
       />
@@ -117,23 +122,30 @@ export default function App() {
         {activeTab === 'calculator' && (
           <div className="space-y-6">
             {/* Quick Context Banner */}
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white border border-slate-200 rounded-xl p-4 shadow-2xs">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-[#111827] border border-slate-800 rounded-xl p-4 shadow-sm">
               <div className="flex items-center gap-3">
-                <span className={`px-2.5 py-1 text-xs font-mono font-bold rounded ${
-                  currentProtocol.modality === 'CT' ? 'bg-blue-100 text-blue-800' : 'bg-purple-100 text-purple-800'
-                }`}>
-                  {currentProtocol.modality}
-                </span>
+                <AppIcon size={38} />
                 <div>
-                  <h1 className="text-sm font-bold text-slate-900">
-                    {currentProtocol.name}
-                  </h1>
-                  <div className="text-xs text-slate-500 flex flex-wrap items-center gap-2 mt-0.5">
-                    <span>{currentProtocol.bodyPartName}</span>
+                  <div className="flex items-center gap-2">
+                    <span className={`px-2 py-0.5 text-[10px] font-mono font-bold rounded border ${
+                      currentProtocol.modality === 'CT'
+                        ? 'bg-teal-950/80 text-teal-300 border-teal-800/60'
+                        : 'bg-purple-950/80 text-purple-300 border-purple-800/60'
+                    }`}>
+                      {currentProtocol.modality}
+                    </span>
+                    <h1 className="text-sm font-bold text-white font-display">
+                      {currentProtocol.name}
+                    </h1>
+                  </div>
+                  <div className="text-xs text-slate-400 flex flex-wrap items-center gap-2 mt-0.5">
+                    <span className="text-slate-300">{currentProtocol.bodyPartName}</span>
                     <span>·</span>
-                    <span>{currentAgent.brandName} ({currentAgent.concentrationValue} {currentAgent.concentrationUnit})</span>
+                    <span className="text-teal-400 font-medium">
+                      {currentAgent.brandName} ({currentAgent.concentrationValue} {currentAgent.concentrationUnit})
+                    </span>
                     <span>·</span>
-                    <span className="font-mono">
+                    <span className="font-mono text-white font-bold">
                       {result.contrastVolumeMl} mL @ {result.flowRateMlPerSec.toFixed(1)} mL/s
                     </span>
                   </div>
@@ -142,15 +154,23 @@ export default function App() {
 
               <div className="flex items-center gap-2">
                 <button
-                  onClick={() => setIsPresetModalOpen(true)}
-                  className="px-3 py-1.5 text-xs font-medium text-slate-700 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-lg transition-colors flex items-center gap-1.5"
+                  onClick={() => setIsInstallModalOpen(true)}
+                  className="px-3 py-1.5 text-xs font-semibold text-teal-300 bg-teal-950/70 hover:bg-teal-900/80 border border-teal-700/70 rounded-lg transition-colors flex items-center gap-1.5 shadow-2xs"
+                  title="Install app on phone (WebAPK)"
                 >
-                  <Sparkles className="w-3.5 h-3.5 text-amber-500" />
+                  <Smartphone className="w-3.5 h-3.5 text-teal-400" />
+                  <span>Test on Phone (APK)</span>
+                </button>
+                <button
+                  onClick={() => setIsPresetModalOpen(true)}
+                  className="px-3 py-1.5 text-xs font-semibold text-slate-200 bg-slate-800 hover:bg-slate-750 hover:text-white border border-slate-700 rounded-lg transition-colors hidden sm:flex items-center gap-1.5 shadow-2xs"
+                >
+                  <Sparkles className="w-3.5 h-3.5 text-amber-400" />
                   <span>Clinical Scenarios</span>
                 </button>
                 <button
                   onClick={() => setActiveTab('worksheet')}
-                  className="px-3 py-1.5 text-xs font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors flex items-center gap-1.5"
+                  className="px-3 py-1.5 text-xs font-bold text-white bg-teal-600 hover:bg-teal-500 rounded-lg transition-all flex items-center gap-1.5 shadow-sm active:scale-95"
                 >
                   <FileSpreadsheet className="w-3.5 h-3.5" />
                   <span>Injector Worksheet</span>
@@ -219,21 +239,22 @@ export default function App() {
       </main>
 
       {/* Clinical Reference Footer */}
-      <footer className="bg-white border-t border-slate-200 mt-12 py-6 no-print">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-xs text-slate-500 space-y-2">
+      <footer className="bg-[#0c1220] border-t border-slate-800 mt-12 py-6 no-print">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-xs text-slate-400 space-y-2">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
             <div className="flex items-center gap-2">
-              <span className="font-semibold text-slate-800">RadContrast Dosing Suite</span>
+              <AppIcon size={20} />
+              <span className="font-bold text-white font-display">Dosage Calc · RadContrast Suite</span>
               <span>·</span>
               <span>ACR Manual on Contrast Media v2024</span>
               <span>·</span>
               <span>ESUR Guidelines 10.0</span>
             </div>
-            <div className="text-slate-400">
-              For professional use by radiologic technologists and radiologists.
+            <div className="text-slate-500 font-mono text-[11px]">
+              For radiologic technologists and radiologists.
             </div>
           </div>
-          <p className="text-[11px] text-slate-400 leading-relaxed">
+          <p className="text-[11px] text-slate-500 leading-relaxed">
             Disclaimer: Dosages, flow rates, and timing recommendations are calculated according to established radiological literature and manufacturer labeling. Clinical judgment, departmental SOPs, and supervising radiologist approval must supersede automated calculation in all individual patient circumstances.
           </p>
         </div>
@@ -245,6 +266,15 @@ export default function App() {
         onClose={() => setIsPresetModalOpen(false)}
         onSelectPreset={handleSelectPreset}
       />
+
+      {/* Install on Phone / APK Modal */}
+      <InstallModal
+        isOpen={isInstallModalOpen}
+        onClose={() => setIsInstallModalOpen(false)}
+      />
+
+      {/* Offline Status Toast */}
+      <OfflineIndicator />
     </div>
   );
 }
